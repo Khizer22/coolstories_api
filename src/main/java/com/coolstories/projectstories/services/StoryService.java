@@ -14,7 +14,11 @@ public interface StoryService {
 
     Story addStory(Integer userID, String title,  String imageURL, String description, String text) throws PSBadRequestException;
 
-    void UpdateStory(Integer userID, String title,  String imageURL, String description, String text) throws PSBadRequestException;
+    void UpdateStory(Integer userID,Integer storyID, Story story) throws PSBadRequestException;
+
+    void incrementStoryView(Integer storyID) throws PSBadRequestException;
+
+    void incrementStoryDownload(Integer storyID) throws PSBadRequestException;
 
     void deleteStory(Integer userID, Integer storyID) throws PSResourceNotFoundException;
 }

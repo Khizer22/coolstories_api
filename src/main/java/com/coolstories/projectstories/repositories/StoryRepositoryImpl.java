@@ -4,8 +4,6 @@ import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
 
-import javax.print.DocFlavor.STRING;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -23,6 +21,10 @@ public class StoryRepositoryImpl implements StoryRepository{
     private static final String SQL_FIND_BY_ID = "SELECT STORY_ID, USER_ID, IMAGEURL, TITLE , DESCRIPTION, TEXT, VIEWS, DOWNLOADS FROM PS_STORIES WHERE STORY_ID = ?";
     private static final String SQL_CREATE = "INSERT INTO PS_STORIES (STORY_ID, USER_ID, TITLE, IMAGEURL, DESCRIPTION, TEXT, VIEWS, DOWNLOADS) " 
     + "VALUES(NEXTVAL('PS_STORIES_SEQ'), ?, ?, ?, ?, ?, ?, ?)";
+    private static final String SQL_FIND_ALL = "SELECT STORY_ID, USER_ID, IMAGEURL, TITLE , DESCRIPTION, TEXT, VIEWS, DOWNLOADS FROM PS_STORIES ORDER BY VIEWS DESC";
+    private static final String SQL_UPDATE = "UPDATE PS_STORIES SET IMAGEURL = ?, TITLE = ?, DESCRIPTION = ?, TEXT = ? WHERE USER_ID = ? AND STORY_ID = ?";
+    private static final String SQL_UPDATE_VIEW = "UPDATE PS_STORIES SET VIEWS = VIEWS + 1 WHERE STORY_ID = ?";
+    private static final String SQL_UPDATE_DOWNLOAD = "UPDATE PS_STORIES SET DOWNLOADS = DOWNLOADS + 1 WHERE STORY_ID = ?";
 
     @Autowired
     JdbcTemplate jdbcTemplate;
@@ -30,7 +32,7 @@ public class StoryRepositoryImpl implements StoryRepository{
     @Override
     public List<Story> findAll() throws PSResourceNotFoundException {
         
-        return null;
+        return jdbcTemplate.query(SQL_FIND_ALL, storyRowMapper, new Object[]{});
     }
 
     @Override
@@ -56,8 +58,8 @@ public class StoryRepositoryImpl implements StoryRepository{
                 ps.setString(3, imageURL);
                 ps.setString(4, description);
                 ps.setString(5, text);
-                ps.setInt(6, userID);
-                ps.setInt(7,userID);
+                ps.setInt(6, 1);
+                ps.setInt(7,0);
                 return ps;
             }, keyHolder);
 
@@ -69,9 +71,36 @@ public class StoryRepositoryImpl implements StoryRepository{
     }
 
     @Override
-    public void update(Integer userID, String title, String imageURL, String description, String text)
+    public void update(Integer userID, Integer storyID, Story story)
             throws PSBadRequestException {
         
+        try {
+            jdbcTemplate.update(SQL_UPDATE, new Object[]{story.getImageURL(), story.getTitle(), story.getDescription(), story.getText(), userID, storyID});
+        } catch (Exception e) {
+           throw new PSBadRequestException("Invalid Request");
+        }
+    }
+
+    @Override
+    public void updateView(Integer storyID)
+            throws PSBadRequestException {
+        
+        try {
+            jdbcTemplate.update(SQL_UPDATE_VIEW, new Object[]{storyID});
+        } catch (Exception e) {
+           throw new PSBadRequestException("Invalid Request");
+        }
+    }
+
+    @Override
+    public void updateDownload(Integer storyID)
+            throws PSBadRequestException {
+        
+        try {
+            jdbcTemplate.update(SQL_UPDATE_DOWNLOAD, new Object[]{storyID});
+        } catch (Exception e) {
+           throw new PSBadRequestException("Invalid Request");
+        }
     }
 
     @Override

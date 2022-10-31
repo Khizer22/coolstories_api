@@ -20,12 +20,12 @@ public class StoryServiceImpl implements StoryService{
 
     @Override
     public List<Story> fetchAllStories() {
-        return null;
+        return storyRepository.findAll();
     }
 
     @Override
     public Story fetchStoryByID(Integer storyID) throws PSResourceNotFoundException {
-        return null;
+        return storyRepository.findByID(storyID);
     }
 
     @Override
@@ -38,14 +38,24 @@ public class StoryServiceImpl implements StoryService{
     }
 
     @Override
-    public void UpdateStory(Integer userID, String title, String imageURL, String description, String text)
+    public void UpdateStory(Integer userID,Integer storyID, Story story)
             throws PSBadRequestException {
-        
+        storyRepository.update(userID, storyID, story);
     }
 
     @Override
     public void deleteStory(Integer userID, Integer storyID) throws PSResourceNotFoundException {
         
+    }
+
+    @Override
+    public void incrementStoryView(Integer storyID) throws PSBadRequestException {
+        storyRepository.updateView(storyID);
+    }
+
+    @Override
+    public void incrementStoryDownload(Integer storyID) throws PSBadRequestException {
+        storyRepository.updateDownload(storyID);     
     }
     
 }

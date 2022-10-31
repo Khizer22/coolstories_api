@@ -11,6 +11,8 @@ public class Story {
     private Integer views;
     private Integer downloads;
 
+    public Story(){}
+
     public Story(Integer storyID, Integer userID, String title, String imageURL, String description, String text, Integer views,
     Integer downloads) {
         this.storyID = storyID;

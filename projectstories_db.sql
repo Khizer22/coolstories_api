@@ -15,9 +15,9 @@ create table ps_users(
 create table ps_stories(
     story_id integer primary key not null,
     user_id integer not null,
-    title varchar(30) not null,
+    title varchar(50) not null,
     imageURL varchar,
-    description varchar(50) not null,
+    description varchar(300) not null,
     text varchar not null,
     views integer DEFAULT 0 not null,
     downloads integer DEFAULT 0 not null
