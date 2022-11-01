@@ -1,5 +1,6 @@
 package com.coolstories.projectstories.services;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +57,16 @@ public class StoryServiceImpl implements StoryService{
     @Override
     public void incrementStoryDownload(Integer storyID) throws PSBadRequestException {
         storyRepository.updateDownload(storyID);     
+    }
+
+    @Override
+    public List<Timestamp> fetchStoryViews(Integer storyID) throws PSResourceNotFoundException {
+        return storyRepository.findStoryViews(storyID); 
+    }
+
+    @Override
+    public List<Timestamp> fetchStoryDownloads(Integer storyID) throws PSResourceNotFoundException {
+        return storyRepository.findStoryDownloads(storyID); 
     }
     
 }

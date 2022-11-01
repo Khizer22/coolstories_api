@@ -2,9 +2,12 @@ package com.coolstories.projectstories.repositories;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.integration.IntegrationAutoConfiguration;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -25,6 +28,11 @@ public class StoryRepositoryImpl implements StoryRepository{
     private static final String SQL_UPDATE = "UPDATE PS_STORIES SET IMAGEURL = ?, TITLE = ?, DESCRIPTION = ?, TEXT = ? WHERE USER_ID = ? AND STORY_ID = ?";
     private static final String SQL_UPDATE_VIEW = "UPDATE PS_STORIES SET VIEWS = VIEWS + 1 WHERE STORY_ID = ?";
     private static final String SQL_UPDATE_DOWNLOAD = "UPDATE PS_STORIES SET DOWNLOADS = DOWNLOADS + 1 WHERE STORY_ID = ?";
+
+    private static final String SQL_CREATE_VIEWTIME = "INSERT INTO PS_VIEWS (VIEW_ID,STORY_ID,VIEWTIME) VALUES(NEXTVAL('PS_VIEWS_SEQ'), ?, current_timestamp)";
+    private static final String SQL_CREATE_DOWNLOADTIME = "INSERT INTO PS_DOWNLOADS (DOWNLOAD_ID,STORY_ID,DOWNLOADTIME) VALUES(NEXTVAL('PS_DOWNLOADS_SEQ'), ?, current_timestamp)";
+    private static final String SQL_FIND_STORY_VIEW = "SELECT VIEWTIME FROM PS_VIEWS WHERE STORY_ID = ?";
+    private static final String SQL_FIND_STORY_DOWNLOAD = "SELECT DOWNLOADTIME FROM PS_DOWNLOADS WHERE STORY_ID = ?";
 
     @Autowired
     JdbcTemplate jdbcTemplate;
@@ -58,7 +66,7 @@ public class StoryRepositoryImpl implements StoryRepository{
                 ps.setString(3, imageURL);
                 ps.setString(4, description);
                 ps.setString(5, text);
-                ps.setInt(6, 1);
+                ps.setInt(6, 0);
                 ps.setInt(7,0);
                 return ps;
             }, keyHolder);
@@ -86,6 +94,7 @@ public class StoryRepositoryImpl implements StoryRepository{
             throws PSBadRequestException {
         
         try {
+            jdbcTemplate.update(SQL_CREATE_VIEWTIME, new Object[]{storyID});
             jdbcTemplate.update(SQL_UPDATE_VIEW, new Object[]{storyID});
         } catch (Exception e) {
            throw new PSBadRequestException("Invalid Request");
@@ -97,11 +106,32 @@ public class StoryRepositoryImpl implements StoryRepository{
             throws PSBadRequestException {
         
         try {
+            jdbcTemplate.update(SQL_CREATE_DOWNLOADTIME, new Object[]{storyID});
             jdbcTemplate.update(SQL_UPDATE_DOWNLOAD, new Object[]{storyID});
         } catch (Exception e) {
            throw new PSBadRequestException("Invalid Request");
         }
     }
+
+    @Override
+    public List<Timestamp> findStoryViews(Integer storyID) throws PSBadRequestException {
+        
+        try {
+            return jdbcTemplate.queryForList(SQL_FIND_STORY_VIEW, Timestamp.class ,new Object[]{storyID});
+        } catch (Exception e) {
+            throw new PSResourceNotFoundException(e.toString());
+        }
+    }
+
+    @Override
+    public List<Timestamp> findStoryDownloads(Integer storyID) throws PSBadRequestException {
+        
+        try {
+            return jdbcTemplate.queryForList(SQL_FIND_STORY_DOWNLOAD, Timestamp.class ,new Object[]{storyID});
+        } catch (Exception e) {
+            throw new PSResourceNotFoundException("Download view not found");
+        }
+    }    
 
     @Override
     public void removeByID(Integer userID, Integer storyID) {
@@ -119,5 +149,11 @@ public class StoryRepositoryImpl implements StoryRepository{
             rs.getInt("VIEWS"),
             rs.getInt("DOWNLOADS")
         );
-    });    
+    });
+
+    // private RowMapper<Integer> intRowMapper = ((rs,rowNum) -> {
+    //     return new Integer(
+    //         rs.getInt("viewtime"),
+    //     );
+    // });
 }

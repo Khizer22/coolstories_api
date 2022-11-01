@@ -1,5 +1,6 @@
 package com.coolstories.projectstories.repositories;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 import com.coolstories.projectstories.domain.Story;
@@ -19,6 +20,10 @@ public interface StoryRepository {
     void updateView(Integer storyID) throws PSBadRequestException;
 
     void updateDownload(Integer storyID) throws PSBadRequestException;
+
+    List<Timestamp> findStoryViews(Integer storyID) throws PSBadRequestException;
+
+    List<Timestamp> findStoryDownloads(Integer storyID) throws PSBadRequestException;
 
     void removeByID(Integer userID, Integer storyID);
 }

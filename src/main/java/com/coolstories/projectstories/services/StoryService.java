@@ -1,5 +1,6 @@
 package com.coolstories.projectstories.services;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 import com.coolstories.projectstories.domain.Story;
@@ -11,6 +12,10 @@ public interface StoryService {
     List<Story> fetchAllStories();
     
     Story fetchStoryByID(Integer storyID) throws PSResourceNotFoundException;
+
+    List<Timestamp> fetchStoryViews(Integer storyID) throws PSResourceNotFoundException;
+
+    List<Timestamp> fetchStoryDownloads(Integer storyID) throws PSResourceNotFoundException;
 
     Story addStory(Integer userID, String title,  String imageURL, String description, String text) throws PSBadRequestException;
 
